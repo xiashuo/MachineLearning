@@ -118,5 +118,4 @@ def spamTest():
 
 
 if __name__=="__main__":
-    # testingNB()
     spamTest()
