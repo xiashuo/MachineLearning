@@ -118,5 +118,6 @@ def spamTest():
 
 
 if __name__=="__main__":
-
-    spamTest()
+    # spamTest()
+    import feedparser
+    ny=feedparser.parse('')
