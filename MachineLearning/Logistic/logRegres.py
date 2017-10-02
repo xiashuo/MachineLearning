@@ -30,7 +30,7 @@ def gradAscent(dataMatIn, classLabels):
         # print(error)
         weights = weights + alpha * dataMatrix.transpose()* error #按照该差值的方向调整回归系数
         # print(weights)
-    return weights     #返回训练好的回归系数
+    return weights,h     #返回训练好的回归系数
 
 def stocGradAscent0(dataMatrix, classLabels):
     m,n = shape(dataMatrix)
@@ -114,9 +114,11 @@ def multiTest():
     print ("after %d iterations the average error rate is: %f" % (numTests, errorSum/float(numTests)))
 
 if __name__=="__main__":
-    # dataArr,labelMat=loadDataSet()
-    # weights=gradAscent(dataArr,labelMat)
+    dataArr,labelMat=loadDataSet()
+    weights,h=gradAscent(dataArr,labelMat)
+    print(weights)
+    print(h)
     # plotBestFit(weights.getA()) #将weight转换成numpy.array形式
     # weights=stocGradAscent1(array(dataArr),labelMat) #这里需要将dataArr转换成numpy.array形式
     # plotBestFit(weights)
-    multiTest()
+    # multiTest()
