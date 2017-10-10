@@ -29,7 +29,7 @@ l1 = add_layer(xs, 1, 10,'layer1', activation_function=tf.nn.relu)
 
 prediction = add_layer(l1, 10, 1,'layer2', activation_function=None)
 with tf.name_scope('loss'):
-    loss = tf.reduce_mean(tf.reduce_sum(tf.square(ys - prediction),reduction_indices=[1]))
+    loss = tf.reduce_mean(tf.square(ys - prediction))
     tf.summary.scalar('loss',loss)
 with tf.name_scope('train'):
     train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
@@ -41,7 +41,7 @@ writer=tf.summary.FileWriter("logs/",sess.graph)
 sess.run(init)
 
 fig=plt.figure()
-ax=fig.add_subplot(1,1,1)
+ax=fig.add_subplot(111)
 ax.scatter(x_data,y_data)
 plt.ion()
 plt.show()
@@ -51,9 +51,17 @@ for i in range(1000):
     if i % 50 == 0:
         # to see the step improvement
         # print(i/50,sess.run(loss, feed_dict={xs: x_data, ys: y_data}))
+        try:
+            ax.lines.remove(lines[0])
+        except Exception:
+            pass
         rs = sess.run(merged, feed_dict={xs: x_data, ys: y_data})
         writer.add_summary(rs, i)
         prediction_value=sess.run(prediction,feed_dict={xs:x_data})
         lines=ax.plot(x_data,prediction_value,'r',lw=5)
-        plt.pause(0.3)
-        ax.lines.remove(lines[0])
+        plt.pause(0.1)
+
+
+
+
+

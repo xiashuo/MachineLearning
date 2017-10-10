@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../KNN/.idea/KNN.iml" filepath="$PROJECT_DIR$/../KNN/.idea/KNN.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../nn_test/.idea/nn_test.iml" filepath="$PROJECT_DIR$/../nn_test/.idea/nn_test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/untitled.iml" filepath="$PROJECT_DIR$/.idea/untitled.iml" />
     </modules>
   </component>

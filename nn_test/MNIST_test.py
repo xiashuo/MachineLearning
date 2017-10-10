@@ -1,7 +1,8 @@
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
+from numpy import *
 # number 1 to 10 data
-mnist = input_data.read_data_sets('MNIST_data/', one_hot=True)
+mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 
 def add_layer(inputs, in_size, out_size, activation_function=None,):
     # add one more layer and return the output of this layer
@@ -17,7 +18,10 @@ def add_layer(inputs, in_size, out_size, activation_function=None,):
 def compute_accuracy(v_xs, v_ys):
     global prediction
     y_pre = sess.run(prediction, feed_dict={xs: v_xs})
+    # argmax()是按行或者列求和，0是列，1是行
+    #tf.equal(A, B)是对比这两个矩阵或者向量的相等的元素，如果是相等的那就返回True，反正返回False，返回的值的矩阵维度和A是一样的
     correct_prediction = tf.equal(tf.argmax(y_pre,1), tf.argmax(v_ys,1))
+    # cast()是类型转换函数，转换成float32
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     result = sess.run(accuracy, feed_dict={xs: v_xs, ys: v_ys})
     return result
@@ -30,8 +34,10 @@ ys = tf.placeholder(tf.float32, [None, 10])
 prediction = add_layer(xs, 784, 10,  activation_function=tf.nn.softmax)
 
 # the error between prediction and real data
-cross_entropy = tf.reduce_mean(-tf.reduce_sum(ys * tf.log(prediction),
-                                              reduction_indices=[1]))       # loss
+c=ys * tf.log(prediction)
+cross_entropy = tf.reduce_mean(-tf.reduce_sum(c,1))      # loss
+
+# cross_entropy = -tf.reduce_sum(ys * tf.log(prediction))      # loss
 train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 
 sess = tf.Session()
