@@ -38,7 +38,7 @@ c=ys * tf.log(prediction)
 cross_entropy = tf.reduce_mean(-tf.reduce_sum(c,1))      # loss
 
 # cross_entropy = -tf.reduce_sum(ys * tf.log(prediction))      # loss
-train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
+train_step = tf.train.GradientDescentOptimizer(0.1).minimize(cross_entropy)
 
 sess = tf.Session()
 # important step
@@ -48,7 +48,7 @@ init = tf.global_variables_initializer()
 sess.run(init)
 
 for i in range(1000):
-    batch_xs, batch_ys = mnist.train.next_batch(100)
+    batch_xs, batch_ys = mnist.train.next_batch(50)
     sess.run(train_step, feed_dict={xs: batch_xs, ys: batch_ys})
     if i % 50 == 0:
         print(compute_accuracy(mnist.test.images, mnist.test.labels))
