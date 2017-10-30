@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.cross_validation import train_test_split
 import tensorflow as tf
 import numpy as np
+import os
 
 data=pd.read_csv("data/train.csv")
 #取部分特征字段用于分类，并将所有缺失的字段填充为0
@@ -28,6 +29,10 @@ with tf.name_scope("classifier"):
     tf.summary.histogram("weights",w)
     tf.summary.histogram("bias",b)
 
+ckpt_dir="./save"
+if not os.path.exists(ckpt_dir):
+    os.makedirs(ckpt_dir)
+global_step=tf.Variable(0,trainable=False,name='global_step')
 saver=tf.train.Saver()
 #代价函数使用交叉熵
 with tf.name_scope("cost"):
@@ -50,19 +55,26 @@ def train():
         writer = tf.summary.FileWriter("logs", sess.graph)
         merged = tf.summary.merge_all()
         tf.global_variables_initializer().run()
-        for epotch in range(10):
+        ckpt=tf.train.get_checkpoint_state(ckpt_dir)
+        if ckpt and ckpt.model_checkpoint_path:
+            print(ckpt.model_checkpoint_path)
+            saver.restore(sess, ckpt.model_checkpoint_path)
+        start=global_step.eval()
+        print("Start from :",start)
+        for epotch in range(start,100):
             total_loss=0.0
             for i in range(len(X_train)):
                 _,loss=sess.run([train_op,cost],feed_dict={x:[X_train[i]],y:[Y_train[i]]})
                 total_loss+=loss
             print("epotch:%4d,total_loss=%.9f"%(epotch,total_loss))
             summary, accuracy = sess.run([merged, acc_op], feed_dict={x: X_test, y: Y_test})
+            print("目前精度为：", accuracy)
             writer.add_summary(summary, epotch)
-        print("Training complete!")
-        save_path=saver.save(sess,"save/model.ckpt")
+            global_step.assign(epotch).eval()
+            saver.save(sess,ckpt_dir+"/model.ckpt",global_step=global_step)
         # correct=np.equal(np.argmax(pred,1),np.argmax(Y_test,1))
         # accuracy=np.mean(correct.astype(np.float32))
-        print("目前精度为：",accuracy)
+
 
 #验证
 def test():

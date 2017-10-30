@@ -1,18 +1,19 @@
 # _*_ coding:utf-8 _*_
 import tensorflow as tf
+import os
 #输入数据
 from tensorflow.examples.tutorials.mnist import input_data
 mnist=input_data.read_data_sets("minst_data",one_hot=True)
 #定义网络的超参数
 learning_rate=1e-3
-training_iters=2e5
+training_iters=1000
 batch_size=128
 display_step=10
 #定义网络的参数
 n_input=784
 n_classes=10
 #输入占位符
-x=tf.placeholder(dtype=tf.float32,shape=[None,n_input])
+x=tf.placeholder(dtype=tf.float32,shape=[None,n_input])/255.
 y=tf.placeholder(dtype=tf.float32,shape=[None,n_classes])
 keep_prob=tf.placeholder(dtype=tf.float32)
 
@@ -52,6 +53,12 @@ biases={
     'b_fc2':tf.Variable(tf.random_normal([4096])),
     'out':tf.Variable(tf.random_normal([10]))
 }
+ckpt_dir="ckpt_dir/"
+if not os.path.exists(ckpt_dir):
+    os.makedirs(ckpt_dir)
+
+global_epotch=tf.Variable(1,trainable=False)
+saver=tf.train.Saver()
 #定义整个网络
 def alex_net(x,weights,biases,dropout):
     x=tf.reshape(x,shape=[-1,28,28,1])
@@ -107,19 +114,24 @@ optimizer=tf.train.AdamOptimizer(learning_rate).minimize(cost)
 #评估函数
 correct_pred=tf.equal(tf.argmax(pred,1),tf.argmax(y,1))
 accuracy=tf.reduce_mean(tf.cast(correct_pred,dtype=tf.float32))
-
 init=tf.global_variables_initializer()
+
 with tf.Session() as sess:
     sess.run(init)
-    step=1
-    while step*batch_size<training_iters:
+    ckpt = tf.train.get_checkpoint_state(ckpt_dir)
+    if ckpt and ckpt.model_checkpoint_path:
+        saver.restore(sess,ckpt.model_checkpoint_path)
+    start = global_epotch.eval()
+    print("start from :",start)
+    for step in range(start,training_iters):
         batch_x,batch_y=mnist.train.next_batch(batch_size)
         sess.run(optimizer,feed_dict={x:batch_x,y:batch_y,keep_prob:0.75})
         if step % display_step==0:
             #计算损失和精确度
             loss,acc=sess.run([cost,accuracy],feed_dict={x:batch_x,y:batch_y,keep_prob:1.0})
-            print("iter:"+str(step*batch_size)+",loss= %s,training accuracy=%s"%(loss,acc))
-        step+=1
+            print("iter: %s,loss= %s,training accuracy=%s"%(step,loss,acc))
+        global_epotch.assign(step).eval()
+        saver.save(sess,ckpt_dir+"model.ckpt",global_step=global_epotch)
     print("finished!")
     #计算测试集的准确度
     print("testing accuracy: ",sess.run(accuracy,feed_dict={x:mnist.test.images[:256],y:mnist.test.labels[:256],keep_prob:1.0}))

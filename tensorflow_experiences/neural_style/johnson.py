@@ -1,7 +1,6 @@
 import tensorflow as tf
 import tflearn
 
-
 def generator(input_image):
     relu = tf.nn.relu
     conv2d = tflearn.conv_2d
